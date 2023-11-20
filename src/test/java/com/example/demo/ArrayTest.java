@@ -125,4 +125,9 @@ public class ArrayTest {
 		System.out.println(primeList);
 	}
 	
+	@Test
+	public void tryTest() {
+		System.out.println("sth");
+	}
+	
 }
