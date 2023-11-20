@@ -1,0 +1,35 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.17'
+	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	sourceCompatibility = '11'
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter'
+	// spring boot starter-web
+	// implementation 'org.springframework.boot:spring-boot-starter-web' // 如果沒有連結成功的話再加上此行
+	// spring boot data jpa（查找時要加上maven）
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // 原網站直接複製Gradle(short)，需把版本刪除後使用
+	// mysql connector
+	implementation 'mysql:mysql-connector-java:8.0.31'
+	// spring boot security  // 加密密碼：BcryptPasswordEncode
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher' // console出現一串紅字的時候複製此行
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
