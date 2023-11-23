@@ -3,6 +3,8 @@ package com.example.demo.service.impl;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -17,10 +19,38 @@ import com.example.demo.vo.AtmResponse;
 @Service
 public class AtmServiceImpl implements AtmService{
 	
+	/* 使用多次的參數可以直接拉出來變成全域使用 */
+	// 密碼加密，共60碼（記得檢查DB的字元數是否也是60）
+	private BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+	
 	@Autowired
 	private AtmDao atmDao;
 	
-
+	
+	/* 測試session&cache用 */
+	@Override
+	public AtmResponse login(String account, String pwd) {
+		
+		/* check account & pwd has text in */
+		if(!StringUtils.hasText(account) || !StringUtils.hasText(pwd)) {
+			return new AtmResponse(null, RtnCode.PARAM_ERROR);
+		}
+		
+		/* find the data by id, and check if it's existed */
+		Optional<Atm> op = atmDao.findById(account);
+		if(op.isEmpty()) {
+			return new AtmResponse(null, RtnCode.ACCOUNT_NOT_FOUND);
+		}
+		
+		/* check the pwd */
+		if(encoder.matches(pwd, op.get().getPwd())) {
+			return new AtmResponse(null, RtnCode.LOGIN_ERROR);
+		}
+		return new AtmResponse(null, RtnCode.SUCCESSFUL);
+	}
+	
+	
+	
 	@Override
 	public AtmResponse addInfo(String account, String pwd) {
 		
@@ -42,7 +72,6 @@ public class AtmServiceImpl implements AtmService{
 		}
 		
 		/* 以上都檢查正確後，儲存到資料庫 */
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(); // 密碼加密，共60碼（記得檢查DB的字元數是否也是60）
 		Atm res = atmDao.save(new Atm(account, encoder.encode(pwd)));
 //		res.setPwd(""); // 不想顯示密碼在console的話加上此行
 		return new AtmResponse(res, RtnCode.SUCCESSFUL);
@@ -50,6 +79,7 @@ public class AtmServiceImpl implements AtmService{
 
 
 	@Override
+	@Cacheable(cacheNames = "atm_get_balance", key = "#account", unless = "#result.rtnCode.code != 200")
 	public AtmResponse getBalanceByAccount(String account, String pwd) {
 		
 		/* account或pwd為空時return null */
@@ -65,7 +95,6 @@ public class AtmServiceImpl implements AtmService{
 
 		/* 把密碼加密後對比資料庫的已加密密碼 */
 		Atm res = op.get();
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		// 使用.matches(原生密碼, 加密後密碼)比對是否符合
 		if(!encoder.matches(pwd, res.getPwd())) {
 			return new AtmResponse(null, RtnCode.ACCOUNT_NOT_FOUND);
@@ -90,7 +119,6 @@ public class AtmServiceImpl implements AtmService{
 		
 		/* 把密碼加密後對比資料庫的已加密密碼 */
 		Atm res = op.get();
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		// 使用.matches(原生密碼, 加密後密碼)比對是否符合
 		if(!encoder.matches(oldPwd, res.getPwd())) {
 			return new AtmResponse(null, RtnCode.ACCOUNT_NOT_FOUND);
@@ -116,7 +144,6 @@ public class AtmServiceImpl implements AtmService{
 		}
 		/* 比對密碼 */
 		Atm res = op.get();
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		if(!encoder.matches(pwd, res.getPwd())) {
 			return new AtmResponse(null, RtnCode.PARAM_ERROR);
 		}
@@ -143,7 +170,6 @@ public class AtmServiceImpl implements AtmService{
 		}
 		/* 比對密碼 */
 		Atm res = op.get();
-		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 		if(!encoder.matches(pwd, res.getPwd())) {
 			return new AtmResponse(null, RtnCode.PARAM_ERROR);
 		}
@@ -160,5 +186,8 @@ public class AtmServiceImpl implements AtmService{
 		res.setPwd("");
 		return new AtmResponse(res, RtnCode.SUCCESSFUL);
 	}
+
+
+	
 
 }

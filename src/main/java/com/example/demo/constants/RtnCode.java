@@ -8,7 +8,10 @@ public enum RtnCode {
 	PARAM_ERROR(400, "Param eroor!"), //
 	ACCOUNT_EXISTED(400, "Account existed!"), //
 	ACCOUNT_NOT_FOUND(404, "Account not found!"), //
-	INSUFFICIENT_BALANCE(400, "Insufficient balance!");
+	INSUFFICIENT_BALANCE(400, "Insufficient balance!"), //
+	LOGIN_ERROR(400, "Login error!"), //
+	PLEASE_LOGIN_FIRST(400, "Please login first!")
+	;
 	
 
 

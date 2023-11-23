@@ -3,6 +3,9 @@ package com.example.demo.service.ifs;
 import com.example.demo.vo.AtmResponse;
 
 public interface AtmService {
+	
+	// 測試session用
+	public AtmResponse login(String account, String pwd);
 
 	public AtmResponse addInfo(String account, String pwd);
 	
