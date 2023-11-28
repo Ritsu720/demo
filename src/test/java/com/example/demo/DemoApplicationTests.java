@@ -96,5 +96,44 @@ public class DemoApplicationTests { // 「public」是最大的「權限」
 		int inputValue = scan.nextInt(); // 帶入數字
 		String inputText = scan.next(); // 帶入文字
 		System.out.println(inputValue + " " + inputText);
+		
+	}
+	
+	
+	@Test
+	public void errorTest() {
+		
+		// try catch
+		Scanner scan = new Scanner(System.in);
+		try{
+			System.out.println("Please enter sth: ");
+			String str = scan.next();
+			System.out.println(str);
+		} catch (Exception e) {
+			System.out.println("some error happened!!");
+		} finally { // finally無論成功與否都會執行
+			scan.close();
+		}
+		
+		// try-with-source：作用等同上面
+		// 方法寫在try後面的()時，可以不用再寫finally把方法關掉
+//		try (Scanner scann = new Scanner(System.in)){
+//			System.out.println("Please enter sth: ");
+//			String strr = scann.next();
+//			System.out.println(strr);
+//		} catch (Exception e) {
+//			System.out.println("some error happened!!");
+//		}
+	}
+	
+	
+	@Test
+	public void errorThrowTest() throws Exception {
+		String a = "12A";
+		try {
+			System.out.println(Integer.parseInt(a));
+		} catch (Exception e) {
+			throw new Exception(e.getMessage()); // 出現紅蚯蚓是因為method沒有加上throws的位置
+		}
 	}
 }
